@@ -1,5 +1,6 @@
 const dns = require("dns");
 const mongoose = require("mongoose");
+require("../models/User");
 
 function configureDns() {
   const dnsServers = process.env.DNS_SERVERS
@@ -28,7 +29,9 @@ async function connectDB() {
       socketTimeoutMS: 45000,
       family: 4
     });
+    await mongoose.syncIndexes();
     console.log("MongoDB connected");
+    console.log("MongoDB indexes synced");
   } catch (error) {
     console.error("MongoDB connection failed:", error.message);
     if (error.message.includes("querySrv")) {

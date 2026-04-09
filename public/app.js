@@ -61,12 +61,15 @@ function fillForm(user) {
   showMessage(`Editing ${user.name}`, "success");
 }
 
-function resetForm() {
+function resetForm(options = {}) {
+  const { preserveMessage = false } = options;
   state.editingId = null;
   userForm.reset();
   document.getElementById("user-id").value = "";
   document.getElementById("submit-button").textContent = "Create User";
-  showMessage("Form reset.");
+  if (!preserveMessage) {
+    showMessage("Form reset.");
+  }
 }
 
 function buildQueryString() {
@@ -178,8 +181,13 @@ async function submitUser(event) {
     }
 
     showMessage(data.message, "success");
-    resetForm();
-    await fetchUsers();
+    resetForm({ preserveMessage: true });
+
+    try {
+      await fetchUsers();
+    } catch (error) {
+      showMessage(`${data.message}. User saved, but table refresh failed.`, "success");
+    }
   } catch (error) {
     showMessage(error.message, "error");
     setStatus("Fault");
