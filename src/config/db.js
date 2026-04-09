@@ -36,7 +36,10 @@ async function connectDB() {
       socketTimeoutMS: 45000,
       family: 4
     });
-    if (!indexesSynced) {
+
+    const shouldSyncIndexes = process.env.SYNC_INDEXES === "true";
+
+    if (shouldSyncIndexes && !indexesSynced) {
       await mongoose.syncIndexes();
       indexesSynced = true;
       console.log("MongoDB indexes synced");

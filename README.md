@@ -34,6 +34,7 @@ PORT=5000
 MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-name>.mongodb.net/user_management_db?retryWrites=true&w=majority&appName=<app-name>
 MONGODB_URI_FALLBACK=
 DNS_SERVERS=8.8.8.8,1.1.1.1
+SYNC_INDEXES=false
 ```
 
 3. In MongoDB Atlas:
@@ -43,6 +44,7 @@ DNS_SERVERS=8.8.8.8,1.1.1.1
 - allow your current IP address in Network Access
 - replace `<username>`, `<password>`, `<cluster-name>`, and `<app-name>` in the connection string
 - if your network blocks SRV DNS lookups, copy the standard `mongodb://...` Atlas driver string into `MONGODB_URI_FALLBACK`
+- keep `SYNC_INDEXES=false` on Vercel to avoid slow serverless cold starts; use `true` locally only when you intentionally want to sync indexes
 
 4. Run the server:
 

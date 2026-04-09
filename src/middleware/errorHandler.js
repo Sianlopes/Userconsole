@@ -21,6 +21,18 @@ function errorHandler(error, req, res, next) {
     return res.status(400).json({ message: "Invalid user id" });
   }
 
+  if (error.name === "MongoServerError" && error.message.toLowerCase().includes("text index required")) {
+    return res.status(400).json({
+      message: "Bio text search is unavailable because the text index is not ready yet"
+    });
+  }
+
+  if (error.name === "MongooseServerSelectionError") {
+    return res.status(503).json({
+      message: "Database is unreachable. Check MongoDB Atlas connection and network access."
+    });
+  }
+
   console.error(error);
   return res.status(500).json({ message: "Internal server error" });
 }

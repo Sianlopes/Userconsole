@@ -27,6 +27,16 @@ function buildFilters(query) {
   return filter;
 }
 
+function buildRegexSearchFilter(query) {
+  const filter = buildFilters({ ...query, search: undefined });
+
+  if (query.search) {
+    filter.bio = { $regex: query.search, $options: "i" };
+  }
+
+  return filter;
+}
+
 function buildSort(sortBy = "createdAt", order = "desc") {
   return { [sortBy]: order === "asc" ? 1 : -1 };
 }
@@ -70,13 +80,35 @@ async function getUsers(req, res, next) {
     const filter = buildFilters(req.query);
     const sort = buildSort(req.query.sortBy, req.query.order);
 
-    const [users, total] = await Promise.all([
-      User.find(filter, req.query.search ? { score: { $meta: "textScore" } } : {})
-        .sort(req.query.search ? { score: { $meta: "textScore" } } : sort)
-        .skip(skip)
-        .limit(limit),
-      User.countDocuments(filter)
-    ]);
+    let users;
+    let total;
+
+    try {
+      [users, total] = await Promise.all([
+        User.find(filter, req.query.search ? { score: { $meta: "textScore" } } : {})
+          .sort(req.query.search ? { score: { $meta: "textScore" } } : sort)
+          .skip(skip)
+          .limit(limit),
+        User.countDocuments(filter)
+      ]);
+    } catch (error) {
+      const isMissingTextIndex =
+        req.query.search &&
+        (error.codeName === "IndexNotFound" || error.message.toLowerCase().includes("text index required"));
+
+      if (!isMissingTextIndex) {
+        throw error;
+      }
+
+      const regexFilter = buildRegexSearchFilter(req.query);
+      [users, total] = await Promise.all([
+        User.find(regexFilter)
+          .sort(sort)
+          .skip(skip)
+          .limit(limit),
+        User.countDocuments(regexFilter)
+      ]);
+    }
 
     res.json({
       page,
