@@ -49,7 +49,7 @@ async function connectDB() {
     if (error.message.includes("querySrv")) {
       console.error("Atlas SRV lookup failed. Set MONGODB_URI_FALLBACK to the non-SRV Atlas URI from Atlas > Connect > Drivers.");
     }
-    process.exit(1);
+    throw error;
   }
 }
 

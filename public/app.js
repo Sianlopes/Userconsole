@@ -19,6 +19,27 @@ function showMessage(text, type = "") {
   messageBox.className = `message ${type}`.trim();
 }
 
+async function readApiResponse(response) {
+  const contentType = response.headers.get("content-type") || "";
+  const raw = await response.text();
+
+  if (!raw) {
+    return {};
+  }
+
+  if (contentType.includes("application/json")) {
+    return JSON.parse(raw);
+  }
+
+  try {
+    return JSON.parse(raw);
+  } catch (error) {
+    return {
+      message: raw.length > 180 ? `${raw.slice(0, 180)}...` : raw
+    };
+  }
+}
+
 function parseHobbies(value) {
   return value
     .split(",")
@@ -99,7 +120,7 @@ async function fetchUsers() {
   try {
     setStatus("Loading");
     const response = await fetch(`/api/users?${buildQueryString()}`);
-    const data = await response.json();
+    const data = await readApiResponse(response);
 
     if (!response.ok) {
       throw new Error(data.message || "Failed to fetch users");
@@ -174,7 +195,7 @@ async function submitUser(event) {
       body: JSON.stringify(payload)
     });
 
-    const data = await response.json();
+    const data = await readApiResponse(response);
 
     if (!response.ok) {
       throw new Error(data.errors?.join(", ") || data.message || "Request failed");
@@ -203,7 +224,7 @@ async function deleteUser(id) {
   try {
     setStatus("Deleting");
     const response = await fetch(`/api/users/${id}`, { method: "DELETE" });
-    const data = await response.json();
+    const data = await readApiResponse(response);
 
     if (!response.ok) {
       throw new Error(data.message || "Delete failed");
@@ -221,7 +242,7 @@ async function editUser(id) {
   try {
     setStatus("Fetching");
     const response = await fetch(`/api/users/${id}`);
-    const user = await response.json();
+    const user = await readApiResponse(response);
 
     if (!response.ok) {
       throw new Error(user.message || "Failed to load user");
