@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NovaGrid User Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Syncopate:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <div class="background-grid" aria-hidden="true"></div>
+  <div class="background-glow background-glow-left" aria-hidden="true"></div>
+  <div class="background-glow background-glow-right" aria-hidden="true"></div>
+
+  <main class="shell">
+    <section class="hero-panel glass">
+      <div class="hero-copy">
+        <p class="eyebrow">MongoDB Atlas + Node.js</p>
+        <h1>NovaGrid User Console</h1>
+        <p class="hero-text">
+          A futuristic control surface for managing users, indexing data, and running search-driven operations on your MongoDB backend.
+        </p>
+        <div class="hero-stats">
+          <article>
+            <span id="stat-total">0</span>
+            <p>Total Users</p>
+          </article>
+          <article>
+            <span id="stat-page">1</span>
+            <p>Current Page</p>
+          </article>
+          <article>
+            <span id="stat-mode">LIVE</span>
+            <p>System State</p>
+          </article>
+        </div>
+      </div>
+      <div class="hero-orbit">
+        <div class="orbit-ring orbit-ring-large"></div>
+        <div class="orbit-ring orbit-ring-small"></div>
+        <div class="orbit-core">
+          <span>Atlas</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="dashboard">
+      <aside class="panel glass panel-form">
+        <div class="panel-header">
+          <p class="eyebrow">Create / Update</p>
+          <h2>User Transmission</h2>
+        </div>
+
+        <form id="user-form" class="user-form">
+          <input type="hidden" id="user-id">
+
+          <label>
+            <span>Name</span>
+            <input id="name" name="name" type="text" minlength="3" required placeholder="Astra Vega">
+          </label>
+
+          <label>
+            <span>Email</span>
+            <input id="email" name="email" type="email" required placeholder="astra@novagrid.com">
+          </label>
+
+          <label>
+            <span>Age</span>
+            <input id="age" name="age" type="number" min="0" max="120" placeholder="24">
+          </label>
+
+          <label>
+            <span>User ID</span>
+            <input id="custom-user-id" name="userId" type="text" placeholder="Optional custom userId">
+          </label>
+
+          <label>
+            <span>Hobbies</span>
+            <input id="hobbies" name="hobbies" type="text" placeholder="coding, synth music, chess">
+          </label>
+
+          <label>
+            <span>Bio</span>
+            <textarea id="bio" name="bio" rows="4" placeholder="Write a searchable bio..."></textarea>
+          </label>
+
+          <div class="form-actions">
+            <button class="button-primary" type="submit" id="submit-button">Create User</button>
+            <button class="button-secondary" type="button" id="reset-button">Reset</button>
+          </div>
+        </form>
+      </aside>
+
+      <section class="panel glass panel-data">
+        <div class="panel-header panel-header-inline">
+          <div>
+            <p class="eyebrow">Query Surface</p>
+            <h2>Live User Registry</h2>
+          </div>
+          <div id="status-chip" class="status-chip">Idle</div>
+        </div>
+
+        <form id="filter-form" class="filter-grid">
+          <label>
+            <span>Name Search</span>
+            <input id="filter-name" type="text" placeholder="Search by name">
+          </label>
+          <label>
+            <span>Email</span>
+            <input id="filter-email" type="text" placeholder="Exact email filter">
+          </label>
+          <label>
+            <span>Age</span>
+            <input id="filter-age" type="number" min="0" max="120" placeholder="Age filter">
+          </label>
+          <label>
+            <span>Hobby</span>
+            <input id="filter-hobby" type="text" placeholder="music">
+          </label>
+          <label>
+            <span>Bio Text Search</span>
+            <input id="filter-search" type="text" placeholder="backend systems">
+          </label>
+          <label>
+            <span>Sort By</span>
+            <select id="sort-by">
+              <option value="createdAt">Created At</option>
+              <option value="name">Name</option>
+              <option value="age">Age</option>
+              <option value="email">Email</option>
+            </select>
+          </label>
+          <label>
+            <span>Order</span>
+            <select id="sort-order">
+              <option value="desc">Descending</option>
+              <option value="asc">Ascending</option>
+            </select>
+          </label>
+          <label>
+            <span>Limit</span>
+            <select id="limit">
+              <option value="5">5</option>
+              <option value="10" selected>10</option>
+              <option value="20">20</option>
+            </select>
+          </label>
+          <div class="filter-actions">
+            <button class="button-primary" type="submit">Run Query</button>
+            <button class="button-secondary" type="button" id="clear-filters">Clear</button>
+          </div>
+        </form>
+
+        <div id="message" class="message" role="status" aria-live="polite"></div>
+      </section>
+    </section>
+
+    <section class="panel glass panel-table">
+      <div class="panel-header">
+        <p class="eyebrow">Data Vault</p>
+        <h2>Stored User Matrix</h2>
+      </div>
+
+      <div class="table-shell">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Age</th>
+              <th>Hobbies</th>
+              <th>Bio</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="user-table-body">
+            <tr>
+              <td colspan="6" class="empty-state">No users loaded yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination">
+        <button class="button-secondary" id="prev-page" type="button">Previous</button>
+        <span id="pagination-text">Page 1</span>
+        <button class="button-secondary" id="next-page" type="button">Next</button>
+      </div>
+    </section>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
